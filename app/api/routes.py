@@ -8,8 +8,45 @@ kural_model = KuralModel()
 @api_bp.route('/kurals', methods=['GET'])
 @token_required
 def get_all_kurals():
-    """Get all Thirukkural couplets"""
-    return jsonify(kural_model.get_all_kurals())
+    """Get all kurals with pagination support"""
+    # Get pagination parameters from query string
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    
+    # Validate and limit pagination parameters
+    if page < 1:
+        page = 1
+    if per_page < 1:
+        per_page = 10
+    if per_page > 100:  # Set a reasonable upper limit
+        per_page = 100
+    
+    # Get all kurals
+    all_kurals = kural_model.get_all_kurals()
+    
+    # Calculate total pages and items
+    total_items = len(all_kurals)
+    total_pages = (total_items + per_page - 1) // per_page  # Ceiling division
+    
+    # Apply pagination
+    start_idx = (page - 1) * per_page
+    end_idx = min(start_idx + per_page, total_items)
+    paginated_kurals = all_kurals[start_idx:end_idx]
+    
+    # Create response with pagination metadata
+    response = {
+        "kurals": paginated_kurals,
+        "pagination": {
+            "page": page,
+            "per_page": per_page,
+            "total_pages": total_pages,
+            "total_items": total_items,
+            "has_next": page < total_pages,
+            "has_prev": page > 1
+        }
+    }
+    
+    return jsonify(response)
 
 @api_bp.route('/kurals/<numbers>', methods=['GET'])
 @token_required

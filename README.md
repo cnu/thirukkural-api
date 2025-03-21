@@ -10,10 +10,14 @@ A Flask-based RESTful API for accessing Thirukkural couplets. Thirukkural is a c
 - Get all Thirukkural couplets from a specific chapter
 - Bearer token authentication for API security
 - API documentation with Swagger UI and ReDoc
+- Pagination support for retrieving large datasets
 
 ## API Endpoints
 
-- `GET /api/kurals` - Get all kurals
+- `GET /api/kurals` - Get all kurals (with pagination support)
+  - Query parameters:
+    - `page` - Page number (default: 1)
+    - `per_page` - Number of items per page (default: 10, max: 100)
 - `GET /api/kurals/<numbers>` - Get kurals by number(s), where numbers can be a single number (e.g., 1) or comma-separated numbers (e.g., 1,2,3)
 - `GET /api/chapters` - Get all chapter details
 - `GET /api/chapters/<chapter_number>/kurals` - Get all kurals from a specific chapter
