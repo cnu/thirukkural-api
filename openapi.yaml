@@ -1,0 +1,198 @@
+openapi: 3.0.3
+info:
+  title: Thirukkural API
+  description: |
+    API for accessing Thirukkural couplets and chapters.
+    
+    The Thirukkural is a classic Tamil language text consisting of 1,330 short couplets (kurals) 
+    organized into chapters and sections. This API provides access to these couplets and their 
+    related information.
+  version: 1.0.0
+  contact:
+    name: API Support
+servers:
+  - url: /api
+    description: API base URL
+paths:
+  /kurals:
+    get:
+      summary: Get all Thirukkural couplets
+      description: Returns a list of all 1,330 Thirukkural couplets
+      operationId: getAllKurals
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Kural'
+  /kurals/{numbers}:
+    get:
+      summary: Get one or more Thirukkural couplets by their numbers
+      description: |
+        This endpoint handles both single kural requests and multiple kural requests:
+        - For a single kural: /api/kurals/1
+        - For multiple kurals: /api/kurals/1,2,3
+      operationId: getKuralsByNumbers
+      parameters:
+        - name: numbers
+          in: path
+          description: Kural number(s) - either a single number or comma-separated list of numbers
+          required: true
+          schema:
+            type: string
+          example: "1,2,3"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Kural'
+        '404':
+          description: No kurals found for the specified numbers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /chapters:
+    get:
+      summary: Get all chapter details
+      description: Returns information about all chapters in the Thirukkural
+      operationId: getAllChapters
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/Chapter'
+  /chapters/{chapter_number}/kurals:
+    get:
+      summary: Get all Thirukkural couplets from a specific chapter
+      description: Returns all kurals belonging to the specified chapter along with chapter details
+      operationId: getKuralsByChapter
+      parameters:
+        - name: chapter_number
+          in: path
+          description: Chapter number
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChapterWithKurals'
+        '404':
+          description: Chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Kural:
+      type: object
+      properties:
+        Number:
+          type: integer
+          description: The unique number of the kural (1-1330)
+          example: 1
+        Line1:
+          type: string
+          description: First line of the kural in Tamil
+          example: "அகர முதல எழுத்தெல்லாம் ஆதி"
+        Line2:
+          type: string
+          description: Second line of the kural in Tamil
+          example: "பகவன் முதற்றே உலகு."
+        Translation:
+          type: string
+          description: English translation of the kural
+          example: "'A' leads letters; the Ancient Lord Leads and lords the entire world"
+        mv:
+          type: string
+          description: Mu. Varadarajan's explanation in Tamil
+          example: "எழுத்துக்கள் எல்லாம் அகரத்தை அடிப்படையாக கொண்டிருக்கின்றன. அதுபோல உலகம் கடவுளை அடிப்படையாக கொண்டிருக்கிறது."
+        sp:
+          type: string
+          description: Solomon Pappaiah's explanation in Tamil
+          example: "எழுத்துக்கள் எல்லாம் அகரத்தில் தொடங்குகின்றன; (அது போல) உலகம் கடவுளில் தொடங்குகிறது."
+        mk:
+          type: string
+          description: Mu. Karunanidhi's explanation in Tamil
+          example: "அகரம் எழுத்துக்களுக்கு முதன்மை; ஆதிபகவன், உலகில் வாழும் உயிர்களுக்கு முதன்மை"
+        explanation:
+          type: string
+          description: Brief explanation in English
+          example: "As the letter A is the first of all letters, so the eternal God is first in the world"
+        couplet:
+          type: string
+          description: Poetic translation in English
+          example: "A, as its first of letters, every speech maintains;The \"Primal Deity\" is first through all the world's domains"
+        transliteration1:
+          type: string
+          description: Transliteration of the first line
+          example: "Akara Mudhala Ezhuththellaam Aadhi"
+        transliteration2:
+          type: string
+          description: Transliteration of the second line
+          example: "Pakavan Mudhatre Ulaku"
+    Chapter:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Chapter name in Tamil
+          example: "கடவுள் வாழ்த்து"
+        translation:
+          type: string
+          description: Chapter name translated to English
+          example: "The Praise of God"
+        transliteration:
+          type: string
+          description: Transliteration of the chapter name
+          example: "Katavul Vaazhththu"
+        start:
+          type: integer
+          description: Starting kural number in this chapter
+          example: 1
+        end:
+          type: integer
+          description: Ending kural number in this chapter
+          example: 10
+        kural_numbers:
+          type: array
+          description: List of all kural numbers in this chapter
+          items:
+            type: integer
+          example: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    ChapterWithKurals:
+      type: object
+      properties:
+        chapter:
+          $ref: '#/components/schemas/Chapter'
+        kurals:
+          type: array
+          description: List of kurals in this chapter
+          items:
+            $ref: '#/components/schemas/Kural'
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "No kurals found for numbers: 9999"
