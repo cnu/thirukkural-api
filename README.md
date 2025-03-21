@@ -8,6 +8,8 @@ A Flask-based RESTful API for accessing Thirukkural couplets. Thirukkural is a c
 - Get a specific Thirukkural couplet by number
 - Get multiple Thirukkural couplets by providing a comma-separated list of numbers
 - Get all Thirukkural couplets from a specific chapter
+- Bearer token authentication for API security
+- API documentation with Swagger UI and ReDoc
 
 ## API Endpoints
 
@@ -15,6 +17,26 @@ A Flask-based RESTful API for accessing Thirukkural couplets. Thirukkural is a c
 - `GET /api/kurals/<numbers>` - Get kurals by number(s), where numbers can be a single number (e.g., 1) or comma-separated numbers (e.g., 1,2,3)
 - `GET /api/chapters` - Get all chapter details
 - `GET /api/chapters/<chapter_number>/kurals` - Get all kurals from a specific chapter
+
+## Authentication
+
+This API uses Bearer token authentication. You must include an `Authorization` header with a valid API key in all requests.
+
+Example:
+```
+Authorization: Bearer your_api_key_here
+```
+
+The API key is stored as an environment variable (`API_KEY`). Make sure to set this variable in your environment or in a `.env` file.
+
+## API Documentation
+
+The API documentation is available at:
+
+- Swagger UI: `/docs/swagger/`
+- ReDoc: `/docs/redoc`
+
+These interactive documentation interfaces allow you to explore the API endpoints and even test them directly from your browser.
 
 ## Local Development
 
@@ -35,12 +57,18 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Run the application:
+4. Create a `.env` file based on `.env.example` and set your API key:
+```
+cp .env.example .env
+# Edit the .env file to set your API_KEY
+```
+
+5. Run the application:
 ```
 flask run
 ```
 
-5. Access the API at `http://localhost:5000`
+6. Access the API at `http://localhost:5000`
 
 ## Running Tests
 
@@ -80,12 +108,17 @@ heroku login
 heroku create your-app-name
 ```
 
-4. Push to Heroku:
+4. Set the API key as a Heroku config variable:
+```
+heroku config:set API_KEY=your_secret_api_key_here
+```
+
+5. Push to Heroku:
 ```
 git push heroku main
 ```
 
-5. Access your API at `https://your-app-name.herokuapp.com`
+6. Access your API at `https://your-app-name.herokuapp.com`
 
 ## Data Source
 

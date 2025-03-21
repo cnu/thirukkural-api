@@ -7,101 +7,27 @@ info:
     The Thirukkural is a classic Tamil language text consisting of 1,330 short couplets (kurals) 
     organized into chapters and sections. This API provides access to these couplets and their 
     related information.
+    
+    ## Authentication
+    
+    This API uses Bearer Token authentication. You must include an `Authorization` header with a valid API key in all requests.
+    
+    Example: `Authorization: Bearer your_api_key_here`
   version: 1.0.0
   contact:
     name: API Support
 servers:
   - url: /api
     description: API base URL
-paths:
-  /kurals:
-    get:
-      summary: Get all Thirukkural couplets
-      description: Returns a list of all 1,330 Thirukkural couplets
-      operationId: getAllKurals
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Kural'
-  /kurals/{numbers}:
-    get:
-      summary: Get one or more Thirukkural couplets by their numbers
-      description: |
-        This endpoint handles both single kural requests and multiple kural requests:
-        - For a single kural: /api/kurals/1
-        - For multiple kurals: /api/kurals/1,2,3
-      operationId: getKuralsByNumbers
-      parameters:
-        - name: numbers
-          in: path
-          description: Kural number(s) - either a single number or comma-separated list of numbers
-          required: true
-          schema:
-            type: string
-          example: "1,2,3"
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Kural'
-        '404':
-          description: No kurals found for the specified numbers
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /chapters:
-    get:
-      summary: Get all chapter details
-      description: Returns information about all chapters in the Thirukkural
-      operationId: getAllChapters
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  $ref: '#/components/schemas/Chapter'
-  /chapters/{chapter_number}/kurals:
-    get:
-      summary: Get all Thirukkural couplets from a specific chapter
-      description: Returns all kurals belonging to the specified chapter along with chapter details
-      operationId: getKuralsByChapter
-      parameters:
-        - name: chapter_number
-          in: path
-          description: Chapter number
-          required: true
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-          example: 1
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ChapterWithKurals'
-        '404':
-          description: Chapter not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+security:
+  - BearerAuth: []
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: Enter your API key as the Bearer token
   schemas:
     Kural:
       type: object
@@ -196,3 +122,123 @@ components:
           type: string
           description: Error message
           example: "No kurals found for numbers: 9999"
+paths:
+  /kurals:
+    get:
+      summary: Get all Thirukkural couplets
+      description: Returns a list of all 1,330 Thirukkural couplets
+      operationId: getAllKurals
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Kural'
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /kurals/{numbers}:
+    get:
+      summary: Get one or more Thirukkural couplets by their numbers
+      description: |
+        This endpoint handles both single kural requests and multiple kural requests:
+        - For a single kural: /api/kurals/1
+        - For multiple kurals: /api/kurals/1,2,3
+      operationId: getKuralsByNumbers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: numbers
+          in: path
+          description: Kural number(s) - either a single number or comma-separated list of numbers
+          required: true
+          schema:
+            type: string
+          example: "1,2,3"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Kural'
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No kurals found for the specified numbers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /chapters:
+    get:
+      summary: Get all chapter details
+      description: Returns information about all chapters in the Thirukkural
+      operationId: getAllChapters
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/Chapter'
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /chapters/{chapter_number}/kurals:
+    get:
+      summary: Get all Thirukkural couplets from a specific chapter
+      description: Returns all kurals belonging to the specified chapter along with chapter details
+      operationId: getKuralsByChapter
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: chapter_number
+          in: path
+          description: Chapter number
+          required: true
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChapterWithKurals'
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
